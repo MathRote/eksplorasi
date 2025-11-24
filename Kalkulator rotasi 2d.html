@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformasi Rotasi Geometri - Media Pembelajaran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 50%, #FFD93D 100%);
+            padding: 32px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 16px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .calculator-container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 32px;
+        }
+
+        .calculator-title {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 2rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .control-panel {
+            background: linear-gradient(135deg, #c3f0c8 0%, #a8e6cf 100%);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .mode-buttons, .shape-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .mode-btn, .shape-btn {
+            padding: 12px;
+            border: 2px solid;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-btn {
+            border-color: #10b981;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .shape-btn {
+            border-color: #fbbf24;
+        }
+
+        .shape-btn.active {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+
+        .angle-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .angle-btn {
+            padding: 10px;
+            border: 2px solid #8b5cf6;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #8b5cf6;
+        }
+
+        .angle-btn.active {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .custom-input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .custom-input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .custom-input-group button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .center-input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-field label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .canvas-container {
+            background: linear-gradient(135deg, #fff5e1 0%, #ffe4b5 100%);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #fbbf24;
+            min-height: 450px;
+        }
+
+        #canvas-2d {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-panel {
+            background: linear-gradient(135deg, #b3e5fc 0%, #81d4fa 100%);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .result-item p {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+
+        .formula-box-result {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #4a5568;
+            border: 1px dashed #cbd5e0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .points-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .point-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr auto;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .point-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .point-row input {
+            padding: 8px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+        }
+
+        .delete-btn {
+            padding: 6px 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .add-point-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>🧮 Math Rote - Transformasi Rotasi Geometri</h1>
+            <div class="subtitle">Media Pembelajaran Matematika Kelas IX</div>
+        </div>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('2d')">📐 Kalkulator Rotasi 2D</button>
+        </div>
+
+        <div id="tab-2d" class="tab-content active">
+            <div class="calculator-container">
+                <h2 class="calculator-title">Kalkulator Rotasi 2D - Transformasi Geometri</h2>
+
+                <div class="main-grid">
+                    <div class="control-panel">
+                        <div class="section">
+                            <div class="section-title">1️⃣ Pilih Mode Input:</div>
+                            <div class="mode-buttons">
+                                <button class="mode-btn active" data-mode="shape">🔷 Bentuk Geometri</button>
+                                <button class="mode-btn" data-mode="manual">✏️ Input Manual Titik</button>
+                            </div>
+                        </div>
+
+                        <div class="section" id="shape-section-2d">
+                            <div class="section-title">2️⃣ Pilih Bentuk:</div>
+                            <div class="shape-buttons">
+                                <button class="shape-btn active" data-shape="triangle">▲ Segitiga</button>
+                                <button class="shape-btn" data-shape="square">■ Persegi</button>
+                                <button class="shape-btn" data-shape="pentagon">⬟ Segi Lima</button>
+                                <button class="shape-btn" data-shape="hexagon">⬡ Segi Enam</button>
+                            </div>
+                        </div>
+
+                        <div class="section hidden" id="points-section-2d">
+                            <div class="section-title">2️⃣ Koordinat Titik-Titik:</div>
+                            <div class="points-container" id="points-container-2d"></div>
+                            <button class="add-point-btn" onclick="addPoint2D()">➕ Tambah Titik</button>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">3️⃣ Pilih Sudut Rotasi:</div>
+                            <div class="angle-buttons">
+                                <button class="angle-btn active" data-angle="90">↻ 90°</button>
+                                <button class="angle-btn" data-angle="180">↻ 180°</button>
+                                <button class="angle-btn" data-angle="270">↻ 270°</button>
+                                <button class="angle-btn" data-angle="-90">↺ -90°</button>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">4️⃣ Atau Sudut Custom:</div>
+                            <div class="custom-input-group">
+                                <input type="number" id="custom-angle-2d" placeholder="Contoh: 45, -30, 120">
+                                <button onclick="applyCustomAngle2D()">🔄 Rotasi!</button>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">5️⃣ Pusat Rotasi O:</div>
+                            <div class="center-input-group">
+                                <div class="input-field">
+                                    <label>Pusat X:</label>
+                                    <input type="number" id="center-x-2d" value="0" step="0.5">
+                                </div>
+                                <div class="input-field">
+                                    <label>Pusat Y:</label>
+                                    <input type="number" id="center-y-2d" value="0" step="0.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="reset-btn" onclick="resetAll2D()">🔄 Reset Semua</button>
+                    </div>
+
+                    <div>
+                        <div class="canvas-container" style="margin-bottom: 24px;">
+                            <canvas id="canvas-2d" width="550" height="400"></canvas>
+                        </div>
+
+                        <div class="result-panel">
+                            <div class="result-title">📊 Koordinat Titik-Titik</div>
+                            <div class="result-item">
+                                <p>Sudut rotasi: <span id="result-angle-2d">90°</span></p>
+                            </div>
+                            <div id="result-points-2d"></div>
+                            <div class="formula-box-result">
+                                <strong>Rumus Rotasi:</strong><br>
+                                x' = (x - cx) × cos(θ) - (y - cy) × sin(θ) + cx<br>
+                                y' = (x - cx) × sin(θ) + (y - cy) × cos(θ) + cy
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        const canvas2D = document.getElementById('canvas-2d');
+        const ctx2D = canvas2D.getContext('2d');
+
+        let currentMode2D = 'shape';
+        let currentShape2D = 'triangle';
+        let currentAngle2D = 90;
+        let centerX2D = 0;
+        let centerY2D = 0;
+        let manualPoints2D = [];
+
+        const shapeTemplates2D = {
+            triangle: [
+                { x: 0, y: 2 },
+                { x: -2, y: -1 },
+                { x: 2, y: -1 }
+            ],
+            square: [
+                { x: -1.5, y: 1.5 },
+                { x: 1.5, y: 1.5 },
+                { x: 1.5, y: -1.5 },
+                { x: -1.5, y: -1.5 }
+            ],
+            pentagon: [
+                { x: 0, y: 2 },
+                { x: 1.9, y: 0.6 },
+                { x: 1.2, y: -1.6 },
+                { x: -1.2, y: -1.6 },
+                { x: -1.9, y: 0.6 }
+            ],
+            hexagon: [
+                { x: 0, y: 2 },
+                { x: 1.7, y: 1 },
+                { x: 1.7, y: -1 },
+                { x: 0, y: -2 },
+                { x: -1.7, y: -1 },
+                { x: -1.7, y: 1 }
+            ]
+        };
+
+        manualPoints2D = [...shapeTemplates2D.triangle];
+        updatePointsUI2D();
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMode2D = this.dataset.mode;
+                
+                if (currentMode2D === 'shape') {
+                    document.getElementById('shape-section-2d').classList.remove('hidden');
+                    document.getElementById('points-section-2d').classList.add('hidden');
+                    manualPoints2D = [...shapeTemplates2D[currentShape2D]];
+                } else {
+                    document.getElementById('shape-section-2d').classList.add('hidden');
+                    document.getElementById('points-section-2d').classList.remove('hidden');
+                }
+                
+                updatePointsUI2D();
+                draw2D();
+            });
+        });
+
+        document.querySelectorAll('.shape-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentShape2D = this.dataset.shape;
+                manualPoints2D = [...shapeTemplates2D[currentShape2D]];
+                updatePointsUI2D();
+                draw2D();
+            });
+        });
+
+        document.querySelectorAll('.angle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentAngle2D = parseFloat(this.dataset.angle);
+                document.getElementById('custom-angle-2d').value = '';
+                draw2D();
+            });
+        });
+
+        ['center-x-2d', 'center-y-2d'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                centerX2D = parseFloat(document.getElementById('center-x-2d').value) || 0;
+                centerY2D = parseFloat(document.getElementById('center-y-2d').value) || 0;
+                draw2D();
+            });
+        });
+
+        function updatePointsUI2D() {
+            const container = document.getElementById('points-container-2d');
+            container.innerHTML = '';
+
+            manualPoints2D.forEach((point, index) => {
+                const row = document.createElement('div');
+                row.className = 'point-row';
+                row.innerHTML = `
+                    <span class="point-label">P${index + 1}:</span>
+                    <input type="number" value="${point.x}" onchange="updatePoint2D(${index}, 'x', this.value)" step="0.5">
+                    <input type="number" value="${point.y}" onchange="updatePoint2D(${index}, 'y', this.value)" step="0.5">
+                    <button class="delete-btn" onclick="deletePoint2D(${index})" ${manualPoints2D.length <= 1 ? 'disabled' : ''}>🗑️</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addPoint2D() {
+            manualPoints2D.push({ x: 0, y: 0 });
+            updatePointsUI2D();
+            draw2D();
+        }
+
+        function deletePoint2D(index) {
+            if (manualPoints2D.length > 1) {
+                manualPoints2D.splice(index, 1);
+                updatePointsUI2D();
+                draw2D();
+            }
+        }
+
+        function updatePoint2D(index, axis, value) {
+            manualPoints2D[index][axis] = parseFloat(value) || 0;
+            draw2D();
+        }
+
+        function applyCustomAngle2D() {
+            const customAngle = parseFloat(document.getElementById('custom-angle-2d').value);
+            if (!isNaN(customAngle)) {
+                currentAngle2D = customAngle;
+                document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+                draw2D();
+            } else {
+                alert('Mohon masukkan sudut yang valid!');
+            }
+        }
+
+        function rotatePoint2D(x, y, cx, cy, angle) {
+            const radians = (angle * Math.PI) / 180;
+            const cos = Math.cos(radians);
+            const sin = Math.sin(radians);
+            const dx = x - cx;
+            const dy = y - cy;
+            return {
+                x: dx * cos - dy * sin + cx,
+                y: dx * sin + dy * cos + cy
+            };
+        }
+
+        function draw2D() {
+            ctx2D.clearRect(0, 0, canvas2D.width, canvas2D.height);
+
+            ctx2D.strokeStyle = '#e0e0e0';
+            ctx2D.lineWidth = 1;
+            for (let i = 0; i <= canvas2D.width; i += 50) {
+                ctx2D.beginPath();
+                ctx2D.moveTo(i, 0);
+                ctx2D.lineTo(i, canvas2D.height);
+                ctx2D.stroke();
+            }
+            for (let i = 0; i <= canvas2D.height; i += 50) {
+                ctx2D.beginPath();
+                ctx2D.moveTo(0, i);
+                ctx2D.lineTo(canvas2D.width, i);
+                ctx2D.stroke();
+            }
+
+            // Grid
+            ctx2D.strokeStyle = '#f0f0f0';
+            ctx2D.lineWidth = 1;
+            for (let i = 0; i <= canvas2D.width; i += scale) {
+                ctx2D.beginPath();
+                ctx2D.moveTo(i, 0);
+                ctx2D.lineTo(i, canvas2D.height);
+                ctx2D.stroke();
+            }
+            for (let i = 0; i <= canvas2D.height; i += scale) {
+                ctx2D.beginPath();
+                ctx2D.moveTo(0, i);
+                ctx2D.lineTo(canvas2D.width, i);
+                ctx2D.stroke();
+            }
+
+            // Sumbu X dan Y (TEBAL)
+            ctx2D.strokeStyle = '#000000';
+            ctx2D.lineWidth = 2;
+            ctx2D.beginPath();
+            ctx2D.moveTo(0, originY);
+            ctx2D.lineTo(canvas2D.width, originY);
+            ctx2D.stroke();
+
+            ctx2D.beginPath();
+            ctx2D.moveTo(originX, 0);
+            ctx2D.lineTo(originX, canvas2D.height);
+            ctx2D.stroke();
+
+            // Label angka
+            ctx2D.fillStyle = '#000000';
+            ctx2D.font = 'bold 11px Arial';
+            ctx2D.textAlign = 'center';
+            ctx2D.textBaseline = 'top';
+
+            for (let i = -Math.floor(originX / scale); i <= Math.floor(originX / scale); i++) {
+                if (i !== 0) {
+                    const pos = mathToCanvas(i, 0);
+                    ctx2D.fillText(i.toString(), pos.x, originY + 5);
+                    ctx2D.beginPath();
+                    ctx2D.moveTo(pos.x, originY - 5);
+                    ctx2D.lineTo(pos.x, originY + 5);
+                    ctx2D.stroke();
+                }
+            }
+
+            ctx2D.textAlign = 'right';
+            ctx2D.textBaseline = 'middle';
+            for (let i = -Math.floor(originY / scale); i <= Math.floor(originY / scale); i++) {
+                if (i !== 0) {
+                    const pos = mathToCanvas(0, i);
+                    ctx2D.fillText(i.toString(), originX - 8, pos.y);
+                    ctx2D.beginPath();
+                    ctx2D.moveTo(originX - 5, pos.y);
+                    ctx2D.lineTo(originX + 5, pos.y);
+                    ctx2D.stroke();
+                }
+            }
+
+            ctx2D.textAlign = 'right';
+            ctx2D.textBaseline = 'top';
+            ctx2D.fillText('0', originX - 8, originY + 5);
+
+            ctx2D.font = 'bold 14px Arial';
+            ctx2D.textAlign = 'left';
+            ctx2D.fillText('X', canvas2D.width - 20, originY + 5);
+            ctx2D.textAlign = 'center';
+            ctx2D.textBaseline = 'bottom';
+            ctx2D.fillText('Y', originX, 15);
+
+            // Pusat rotasi
+            const centerCanvas = mathToCanvas(centerX2D, centerY2D);
+            ctx2D.fillStyle = '#ff6b6b';
+            ctx2D.beginPath();
+            ctx2D.arc(centerCanvas.x, centerCanvas.y, 8, 0, Math.PI * 2);
+            ctx2D.fill();
+            ctx2D.fillStyle = '#2d3748';
+            ctx2D.font = 'bold 12px Arial';
+            ctx2D.textAlign = 'left';
+            ctx2D.textBaseline = 'bottom';
+            ctx2D.fillText(`O(${centerX2D}, ${centerY2D})`, centerCanvas.x + 12, centerCanvas.y - 5);
+
+            // Bentuk asli (merah)
+            ctx2D.fillStyle = 'rgba(255, 107, 107, 0.4)';
+            ctx2D.strokeStyle = '#e74c3c';
+            ctx2D.lineWidth = 2;
+            ctx2D.beginPath();
+            const firstPoint = mathToCanvas(manualPoints2D[0].x, manualPoints2D[0].y);
+            ctx2D.moveTo(firstPoint.x, firstPoint.y);
+            for (let i = 1; i < manualPoints2D.length; i++) {
+                const point = mathToCanvas(manualPoints2D[i].x, manualPoints2D[i].y);
+                ctx2D.lineTo(point.x, point.y);
+            }
+            ctx2D.closePath();
+            ctx2D.fill();
+            ctx2D.stroke();
+
+            manualPoints2D.forEach((p, i) => {
+                const canvasPoint = mathToCanvas(p.x, p.y);
+                ctx2D.fillStyle = '#e74c3c';
+                ctx2D.beginPath();
+                ctx2D.arc(canvasPoint.x, canvasPoint.y, 5, 0, Math.PI * 2);
+                ctx2D.fill();
+                ctx2D.fillStyle = '#2d3748';
+                ctx2D.font = 'bold 11px Arial';
+                ctx2D.textAlign = 'left';
+                ctx2D.textBaseline = 'bottom';
+                ctx2D.fillText(`P${i + 1}`, canvasPoint.x + 10, canvasPoint.y - 5);
+            });
+
+            // Rotasi
+            const rotatedPoints = manualPoints2D.map(p => 
+                rotatePoint2D(p.x, p.y, centerX2D, centerY2D, currentAngle2D)
+            );
+
+            // Bentuk hasil rotasi (biru)
+            ctx2D.fillStyle = 'rgba(74, 144, 226, 0.4)';
+            ctx2D.strokeStyle = '#3498db';
+            ctx2D.lineWidth = 2;
+            ctx2D.beginPath();
+            const firstRotated = mathToCanvas(rotatedPoints[0].x, rotatedPoints[0].y);
+            ctx2D.moveTo(firstRotated.x, firstRotated.y);
+            for (let i = 1; i < rotatedPoints.length; i++) {
+                const point = mathToCanvas(rotatedPoints[i].x, rotatedPoints[i].y);
+                ctx2D.lineTo(point.x, point.y);
+            }
+            ctx2D.closePath();
+            ctx2D.fill();
+            ctx2D.stroke();
+
+            rotatedPoints.forEach((p, i) => {
+                const canvasPoint = mathToCanvas(p.x, p.y);
+                ctx2D.fillStyle = '#3498db';
+                ctx2D.beginPath();
+                ctx2D.arc(canvasPoint.x, canvasPoint.y, 5, 0, Math.PI * 2);
+                ctx2D.fill();
+                ctx2D.fillStyle = '#2d3748';
+                ctx2D.font = 'bold 11px Arial';
+                ctx2D.textAlign = 'left';
+                ctx2D.textBaseline = 'top';
+                ctx2D.fillText(`P${i + 1}'`, canvasPoint.x + 10, canvasPoint.y + 5);
+            });
+
+            updateResults2D(manualPoints2D, rotatedPoints);
+        }
+
+        function updateResults2D(original, rotated) {
+            document.getElementById('result-angle-2d').textContent = currentAngle2D + '°';
+            
+            const resultDiv = document.getElementById('result-points-2d');
+            resultDiv.innerHTML = '';
+
+            original.forEach((p, i) => {
+                const r = rotated[i];
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+                    <p>P${i + 1}(${p.x.toFixed(1)}, ${p.y.toFixed(1)}) → 
+                    P${i + 1}'(${r.x.toFixed(1)}, ${r.y.toFixed(1)})</p>
+                `;
+                resultDiv.appendChild(item);
+            });
+        }
+
+        function resetAll2D() {
+            currentMode2D = 'shape';
+            currentShape2D = 'triangle';
+            currentAngle2D = 90;
+            centerX2D = 0;
+            centerY2D = 0;
+            manualPoints2D = [...shapeTemplates2D.triangle];
+
+            document.getElementById('center-x-2d').value = 0;
+            document.getElementById('center-y-2d').value = 0;
+            document.getElementById('custom-angle-2d').value = '';
+
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.mode-btn[data-mode="shape"]').classList.add('active');
+            
+            document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.shape-btn[data-shape="triangle"]').classList.add('active');
+            
+            document.querySelectorAll('.angle-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.angle-btn[data-angle="90"]').classList.add('active');
+
+            document.getElementById('shape-section-2d').classList.remove('hidden');
+            document.getElementById('points-section-2d').classList.add('hidden');
+
+            updatePointsUI2D();
+            draw2D();
+        }
+
+        draw2D();
+    </script>
+</body>
+</html>
